@@ -8,28 +8,8 @@ const ImageGallery = () => {
 
   const selectedImages = location.state || [];
 
-  const images = [
-    "https://loremflickr.com/200/200?random=1",
-    "https://loremflickr.com/200/200?random=2",
-    "https://loremflickr.com/200/200?random=3",
-    "https://loremflickr.com/200/200?random=4",
-    "https://loremflickr.com/200/200?random=5",
-    "https://loremflickr.com/200/200?random=6",
-    "https://loremflickr.com/200/200?random=7",
-    "https://loremflickr.com/200/200?random=8",
-    "https://loremflickr.com/200/200?random=9",
-    "https://loremflickr.com/200/200?random=10",
-    "https://loremflickr.com/200/200?random=11",
-    "https://picsum.photos/200/300?random=1",
-    "https://picsum.photos/200/300?random=2",
-    "https://picsum.photos/200/300?random=3",
-    "https://picsum.photos/200/300?random=4",
-    "https://picsum.photos/200/300?random=5",
-  ];
-
   return (
     <div className="min-h-screen p-6 bg-gray-100">
-      {/* Search bar and Add button */}
       <div className="flex items-center justify-between mb-6">
         <input
           type="text"
@@ -40,7 +20,6 @@ const ImageGallery = () => {
         <Search className="absolute right-[51%] text-muted-foreground" />
       </div>
 
-      {/* Responsive image gallery */}
       <div className="grid grid-cols-4 gap-4">
         {selectedImages.length > 0 &&
           selectedImages.map((image, index) => (

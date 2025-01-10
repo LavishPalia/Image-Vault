@@ -1,28 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Crop,
-  Cross,
-  Edit,
-  FlipHorizontal,
+  DoorOpen,
   FlipHorizontal2,
-  FlipVertical,
   FlipVertical2,
   Pen,
   Plus,
   Replace,
-  Rotate3D,
   RotateCcw,
-  RotateCcwIcon,
   Trash,
+  Trash2Icon,
   Upload,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "./ui/sheet"; // Use the Sheet components
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -30,6 +20,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { Cropper } from "react-cropper";
+import "cropperjs/dist/cropper.css";
 
 const AddImage = ({
   handleFileSelect,
@@ -42,26 +34,63 @@ const AddImage = ({
   setImages,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [title, setTitle] = useState(selectedImageName);
+  const [isEditing, setIsEditing] = useState(false);
+  const [croppedImage, setCroppedImage] = useState(null);
 
-  // Synchronize title with selectedImageName
-  // useEffect(() => {
-  //   if (selectedImageName) {
-  //     setTitle(selectedImageName);
-  //   }
-  // }, [selectedImageName]);
-
-  // console.log(selectedImageName);
-  // console.log(title);
+  const cropperRef = useRef(null);
 
   const navigate = useNavigate();
 
-  // Clean up object URL
+  const flipImageHorizontally = () => {
+    const cropper = cropperRef.current?.cropper;
+    cropper.scaleX(cropper.getData().scaleX * -1);
+  };
+
+  const flipImageVertically = () => {
+    const cropper = cropperRef.current?.cropper;
+    cropper.scaleY(cropper.getData().scaleY * -1);
+  };
+
+  const cropImage = () => {
+    console.log("crop image ran");
+
+    const cropper = cropperRef.current?.cropper;
+    if (cropper) {
+      console.log("cropper exist");
+
+      const canvas = cropper.getCroppedCanvas();
+      canvas.toBlob(
+        (blob) => {
+          const reader = new FileReader();
+
+          reader.onloadend = () => {
+            console.log("cropped image base-64 url->", reader.result);
+
+            setCroppedImage(reader.result);
+          };
+          reader.readAsDataURL(blob);
+        },
+        "image/jpeg",
+        1
+      );
+    }
+
+    setIsEditing(false);
+  };
+
+  const rotateClockwise = () => {
+    const cropper = cropperRef.current?.cropper;
+    if (cropper) {
+      cropper.rotate(90);
+    }
+  };
+
   useEffect(() => {
     return () => {
+      if (croppedImage) URL.revokeObjectURL(croppedImage);
       if (selectedImage) URL.revokeObjectURL(selectedImage);
     };
-  }, [selectedImage]);
+  }, [selectedImage, croppedImage]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -94,17 +123,41 @@ const AddImage = ({
             <div className="grid h-full grid-cols-10 gap-4">
               {/* Image Preview */}
               <div className="relative h-full col-span-7">
-                <img
-                  src={selectedImage}
-                  alt="Selected Preview"
-                  className="w-full h-[600px] object-center object-cover rounded-xl pt-2"
-                />
+                {isEditing ? (
+                  <div className="relative">
+                    <Cropper
+                      ref={cropperRef}
+                      src={selectedImage}
+                      aspectRatio={1}
+                      guides={false}
+                    />
+
+                    <Button
+                      className="absolute rounded-r-none top-2 right-16"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      <Trash2Icon />
+                    </Button>
+                    <Button
+                      className="absolute rounded-l-none top-2 right-5"
+                      onClick={cropImage}
+                    >
+                      <DoorOpen />
+                    </Button>
+                  </div>
+                ) : (
+                  <img
+                    src={croppedImage || selectedImage}
+                    alt="Selected Preview"
+                    className="w-full h-[600px] object-center object-cover rounded-xl pt-2"
+                  />
+                )}
 
                 {/* Collapsible in the top-right corner */}
                 <Collapsible
                   open={isOpen}
                   onOpenChange={setIsOpen}
-                  className="absolute space-y-2 text-white rounded-lg shadow-md bg-black/50 top-8 right-4"
+                  className="absolute space-y-2 text-white rounded-lg shadow-md bg-black/50 top-16 right-4"
                 >
                   <div className="flex items-center justify-between">
                     <CollapsibleTrigger asChild>
@@ -123,20 +176,29 @@ const AddImage = ({
                   </div>
 
                   <CollapsibleContent className="flex flex-col items-center justify-center space-y-2">
-                    {/* <div className="px-4 py-3 font-mono text-sm border rounded-md">
-                      @radix-ui/colors
-                    </div> */}
-                    <Button className="p-0 bg-transparent w-9 hover:bg-transparent">
+                    <Button
+                      className="p-0 bg-transparent w-9 hover:bg-transparent"
+                      onClick={() => setIsEditing(true)}
+                    >
                       <Crop />
                     </Button>
-                    <Button className="p-0 bg-transparent w-9 hover:bg-transparent">
+                    <Button
+                      className="p-0 bg-transparent w-9 hover:bg-transparent"
+                      onClick={rotateClockwise}
+                    >
                       <RotateCcw />
                     </Button>
-                    <Button className="p-0 bg-transparent w-9 hover:bg-transparent">
+                    <Button
+                      className="p-0 bg-transparent w-9 hover:bg-transparent"
+                      onClick={flipImageHorizontally}
+                    >
                       <FlipHorizontal2 />
                     </Button>
 
-                    <Button className="p-0 bg-transparent w-9 hover:bg-transparent">
+                    <Button
+                      className="p-0 bg-transparent w-9 hover:bg-transparent"
+                      onClick={flipImageVertically}
+                    >
                       <FlipVertical2 />
                     </Button>
                     <Button className="p-0 bg-transparent w-9 hover:bg-transparent">
@@ -169,8 +231,8 @@ const AddImage = ({
                   <Button
                     variant="secondary"
                     onClick={() => {
-                      setSelectedImage(null); // Clear the image
-                      setSheetOpen(false); // Close the sheet
+                      setSelectedImage(null);
+                      setSheetOpen(false);
                     }}
                   >
                     Cancel
@@ -178,12 +240,13 @@ const AddImage = ({
                   <Button
                     className="px-4 py-2 text-white bg-[#334D6E] rounded hover:bg-[#334D6E]/90"
                     onClick={() => {
+                      const imageToUpload = croppedImage || selectedImage;
+
                       const newImage = {
-                        url: selectedImage,
+                        url: imageToUpload,
                         name: selectedImageName,
                       };
 
-                      // Update the images state
                       setImages((prevImages) => {
                         const updatedImages = [...prevImages, newImage];
 
@@ -192,12 +255,11 @@ const AddImage = ({
                           JSON.stringify(updatedImages)
                         );
 
-                        // Navigate with the updated state
                         navigate("/gallery", {
                           state: updatedImages,
                         });
 
-                        return updatedImages; // Ensure the state is updated
+                        return updatedImages;
                       });
                       setSheetOpen(false);
                     }}
