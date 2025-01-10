@@ -46,13 +46,17 @@ const ImageGallery = () => {
           selectedImages.map((image, index) => (
             <div
               key={index}
-              className="relative overflow-hidden bg-white rounded-lg shadow-lg even:row-span-2 first-of-type:row-span-1"
+              className="relative overflow-hidden bg-white rounded-lg shadow-lg even:row-span-2 first-of-type:row-span-1 group"
             >
               <img
                 src={image.url}
                 alt={`Asset ${index + 1}`}
                 className="object-cover object-center w-full h-full aspect-video"
               />
+
+              <p className="absolute px-2 py-1 text-white transition-opacity duration-300 rounded opacity-0 top-2 left-2 bg-black/50 group-hover:opacity-100">
+                {image.name}
+              </p>
             </div>
           ))}
       </div>
