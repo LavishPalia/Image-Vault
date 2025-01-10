@@ -38,9 +38,21 @@ const AddImage = ({
   setSelectedImage,
   isSheetOpen,
   setSheetOpen,
+  setSelectedImageName,
   setImages,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // const [title, setTitle] = useState(selectedImageName);
+
+  // Synchronize title with selectedImageName
+  // useEffect(() => {
+  //   if (selectedImageName) {
+  //     setTitle(selectedImageName);
+  //   }
+  // }, [selectedImageName]);
+
+  // console.log(selectedImageName);
+  // console.log(title);
 
   const navigate = useNavigate();
 
@@ -144,7 +156,7 @@ const AddImage = ({
                   placeholder="Asset Title"
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring"
                   value={selectedImageName}
-                  onChange={() => {}}
+                  onChange={(e) => setSelectedImageName(e.target.value)}
                 />
                 <textarea
                   placeholder="Enter Description"

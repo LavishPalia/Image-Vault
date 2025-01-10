@@ -12,7 +12,7 @@ function Home() {
   // Load images from localStorage on component mount
   useEffect(() => {
     const storedImages = localStorage.getItem("images");
-    console.log(storedImages);
+    // console.log(storedImages);
 
     if (storedImages) {
       setImages(JSON.parse(storedImages));
@@ -56,6 +56,7 @@ function Home() {
         selectedImage={selectedImage}
         selectedImageName={selectedImageName}
         setSelectedImage={setSelectedImage}
+        setSelectedImageName={setSelectedImageName}
         isSheetOpen={isSheetOpen}
         setSheetOpen={setSheetOpen}
         setImages={setImages}
